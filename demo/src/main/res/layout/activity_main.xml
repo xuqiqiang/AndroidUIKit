@@ -27,5 +27,17 @@
             android:layout_height="wrap_content"
             android:onClick="dialog"
             android:text="对话框" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="progressDialog"
+            android:text="简单进度对话框" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="progressDialog2"
+            android:text="模拟进度对话框" />
     </LinearLayout>
 </ScrollView>

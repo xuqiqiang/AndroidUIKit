@@ -7,8 +7,11 @@ package com.xuqiqiang.uikit.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
 import androidx.annotation.NonNull;
 import androidx.collection.LruCache;
+
+import com.xuqiqiang.uikit.utils.code.Md5;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,8 +22,8 @@ import java.net.URL;
 
 public class ImageLoader {
 
-    private int maxSize = (int) (Runtime.getRuntime().freeMemory() / 2);
-    private LruCache<String, Bitmap> memCache = new LruCache<String, Bitmap>(maxSize) {
+    private final int maxSize = (int) (Runtime.getRuntime().freeMemory() / 2);
+    private final LruCache<String, Bitmap> memCache = new LruCache<String, Bitmap>(maxSize) {
 
         @Override
         protected int sizeOf(@NonNull String key, Bitmap value) {
@@ -28,7 +31,7 @@ public class ImageLoader {
         }
 
     };
-    private File cacheDir;
+    private final File cacheDir;
 
     public ImageLoader(Context context) {
         cacheDir = context.getCacheDir();

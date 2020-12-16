@@ -16,24 +16,20 @@ import android.widget.TextView;
 
 import com.xuqiqiang.uikit.R;
 
-import java.lang.ref.WeakReference;
-
 public class CustomProgressDialog extends Dialog implements DialogInterface.OnCancelListener {
 
     private volatile static CustomProgressDialog sDialog;
     // for test
     private static int progress;
-    private WeakReference<Context> mContextRef = new WeakReference<>(null);
+    private final ProgressBar pbLoading;
+    private final RoundProgressBar rpbLoading;
+    //    private WeakReference<Context> mContextRef = new WeakReference<>(null);
     private CharSequence mText;
     private boolean mIndeterminate = true;
-    private ProgressBar pbLoading;
-    private RoundProgressBar rpbLoading;
 
     private CustomProgressDialog(Context context, CharSequence message) {
         super(context, R.style.CustomProgressDialog);
-
-        mContextRef = new WeakReference<>(context);
-
+//        mContextRef = new WeakReference<>(context);
         @SuppressLint("InflateParams")
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_custom_progress, null);
         if (!TextUtils.isEmpty(message)) {

@@ -5,21 +5,22 @@ import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Looper;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.xuqiqiang.uikit.utils.SingleTaskHandler;
+import androidx.annotation.Nullable;
+
 import com.xuqiqiang.uikit.R;
+import com.xuqiqiang.uikit.utils.SingleTaskHandler;
 
 public class TouchOpacity extends RelativeLayout {
 
     private static final int OPACITY_DEFAULT = 70;
+    private final float opacityValue;
+    private final SingleTaskHandler mSingleTaskHandler = new SingleTaskHandler(Looper.getMainLooper());
     private boolean enabled = true;
-    private float opacityValue;
-    private SingleTaskHandler mSingleTaskHandler = new SingleTaskHandler(Looper.getMainLooper());
     private int mSecurityTime = 300;
 
     public TouchOpacity(Context context) {

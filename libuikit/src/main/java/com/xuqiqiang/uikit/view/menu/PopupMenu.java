@@ -22,6 +22,8 @@ import com.xuqiqiang.uikit.view.popup.CommonPopupWindow;
 import java.util.List;
 
 /**
+ * 底部弹出式菜单
+ * <p>
  * Created by xuqiqiang on 2019/12/06.
  */
 public class PopupMenu implements CommonPopupWindow.ViewInterface {

@@ -64,7 +64,7 @@ public class TouchRipple extends FrameLayout {
     private final Paint paint  = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect  bounds = new Rect();
 
-    private SingleTaskHandler mSingleTaskHandler = new SingleTaskHandler(Looper.getMainLooper());
+    private final SingleTaskHandler mSingleTaskHandler = new SingleTaskHandler(Looper.getMainLooper());
     private int      rippleColor;
     private boolean  rippleOverlay;
     private boolean  rippleHover;

@@ -33,7 +33,7 @@
             android:visibility="gone"
             app:rpb_max="100"
             app:rpb_roundColor="@android:color/white"
-            app:rpb_roundProgressColor="?attr/colorPrimary"
+            app:rpb_roundProgressColor="?attr/colorAccent"
             app:rpb_roundWidth="2dp"
             app:rpb_textColor="@android:color/white"
             app:rpb_textSize="12sp"

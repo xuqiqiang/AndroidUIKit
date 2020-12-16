@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.xuqiqiang.uikit.activity.BaseThemeActivity;
+import com.xuqiqiang.uikit.view.CustomProgressDialog;
 import com.xuqiqiang.uikit.view.ToastMaster;
 import com.xuqiqiang.uikit.view.dialog.BaseDialog;
 
@@ -32,5 +33,13 @@ public class MainActivity extends BaseThemeActivity {
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create().show();
+    }
+
+    public void progressDialog(View view) {
+        CustomProgressDialog.show(this, "请稍等...");
+    }
+
+    public void progressDialog2(View view) {
+        CustomProgressDialog.main(this);
     }
 }

@@ -1,12 +1,16 @@
 package com.xuqiqiang.uikit.view;
 
 import android.content.Context;
-import androidx.viewpager.widget.ViewPager;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import androidx.viewpager.widget.ViewPager;
+
 import java.lang.reflect.Field;
 
+/**
+ * 调整ViewPager切换时间
+ */
 public class ViewPagerScroller extends Scroller {
     private int mDuration = 1000;/*default duration time*/
 
