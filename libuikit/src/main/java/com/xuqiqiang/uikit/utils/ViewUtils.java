@@ -206,17 +206,26 @@ public class ViewUtils {
         }
     }
 
+    public static Rect getViewZone(View view) {
+        return getViewZone(view, new Rect());
+    }
+
+    public static Rect getViewZone(View view, Rect rect) {
+        view.getDrawingRect(rect);
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        rect.left = location[0];
+        rect.top = location[1];
+        rect.right = rect.right + location[0];
+        rect.bottom = rect.bottom + location[1];
+        return rect;
+    }
+
     public static boolean isInViewZone(View view, int x, int y) {
         if (null == mViewRect) {
             mViewRect = new Rect();
         }
-        view.getDrawingRect(mViewRect);
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        mViewRect.left = location[0];
-        mViewRect.top = location[1];
-        mViewRect.right = mViewRect.right + location[0];
-        mViewRect.bottom = mViewRect.bottom + location[1];
+        getViewZone(view, mViewRect);
         return mViewRect.contains(x, y);
     }
 }

@@ -3,8 +3,6 @@ package com.xuqiqiang.uikit.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -15,9 +13,12 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.xuqiqiang.uikit.R;
 
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 /**
@@ -25,7 +26,7 @@ import java.lang.reflect.Field;
  */
 public class ToastMaster {
 
-    private static SoftReference<Toast> sToast;
+    private static WeakReference<Toast> sToast;
 
     private ToastMaster() {
     }
@@ -55,6 +56,7 @@ public class ToastMaster {
     }
 
     public static Toast showToast(Context context, CharSequence text, int during, boolean highPriority) {
+        context = context.getApplicationContext();
         Toast toast = new Toast(context);
         toast.setDuration(during);
         View view = getView(context, text);
@@ -74,7 +76,7 @@ public class ToastMaster {
             }
         }
         if (toast == null) sToast = null;
-        else sToast = new SoftReference<>(toast);
+        else sToast = new WeakReference<>(toast);
     }
 
     public static void cancelToast() {
@@ -117,7 +119,7 @@ public class ToastMaster {
     private static class SafeToastContext extends ContextWrapper {
 
         @NonNull
-        private Toast toast;
+        private final Toast toast;
 
         @Nullable
         private BadTokenListener badTokenListener;
@@ -145,7 +147,6 @@ public class ToastMaster {
             @Override
             public Object getSystemService(@NonNull String name) {
                 if (Context.WINDOW_SERVICE.equals(name)) {
-                    // noinspection ConstantConditions
                     return new WindowManagerWrapper((WindowManager) getBaseContext().getSystemService(name));
                 }
                 return super.getSystemService(name);

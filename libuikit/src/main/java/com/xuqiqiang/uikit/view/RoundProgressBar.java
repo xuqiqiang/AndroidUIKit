@@ -16,7 +16,9 @@ public class RoundProgressBar extends View {
 
     public static final int STROKE = 0;
     public static final int FILL = 1;
-    private Paint paint;
+    private final Paint paint;
+    private final boolean textIsDisplayable;
+    private final int style;
     private int roundColor;
     private int roundProgressColor;
     private int textColor;
@@ -24,8 +26,6 @@ public class RoundProgressBar extends View {
     private float roundWidth;
     private int max;
     private int progress;
-    private boolean textIsDisplayable;
-    private int style;
 
     public RoundProgressBar(Context context) {
         this(context, null);

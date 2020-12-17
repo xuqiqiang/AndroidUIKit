@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -16,26 +18,24 @@ import android.widget.TextView;
 
 import com.xuqiqiang.uikit.R;
 
-public class CustomProgressDialog extends Dialog implements DialogInterface.OnCancelListener {
+import java.lang.ref.SoftReference;
 
-    private volatile static CustomProgressDialog sDialog;
+public class CustomProgressDialog extends Dialog {
+
+    private volatile static SoftReference<CustomProgressDialog> rDialog;
     // for test
     private static int progress;
     private final ProgressBar pbLoading;
     private final RoundProgressBar rpbLoading;
-    //    private WeakReference<Context> mContextRef = new WeakReference<>(null);
     private CharSequence mText;
     private boolean mIndeterminate = true;
 
     private CustomProgressDialog(Context context, CharSequence message) {
         super(context, R.style.CustomProgressDialog);
-//        mContextRef = new WeakReference<>(context);
         @SuppressLint("InflateParams")
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_custom_progress, null);
         if (!TextUtils.isEmpty(message)) {
             mText = message;
-//            View llContent = view.findViewById(R.id.ll_content);
-//            ViewUtils.setSize(llContent, (int) DisplayUtils.dip2px(context, 200), ViewGroup.LayoutParams.WRAP_CONTENT);
             TextView tvMessage = view.findViewById(R.id.tv_message);
             tvMessage.setVisibility(View.VISIBLE);
             tvMessage.setText(message);
@@ -44,7 +44,6 @@ public class CustomProgressDialog extends Dialog implements DialogInterface.OnCa
         rpbLoading = view.findViewById(R.id.rpb_loading);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addContentView(view, lp);
-        setOnCancelListener(this);
     }
 
     public static void show(Context context) {
@@ -56,6 +55,11 @@ public class CustomProgressDialog extends Dialog implements DialogInterface.OnCa
     }
 
     public static void show(Context context, CharSequence message, boolean cancelable) {
+        CustomProgressDialog sDialog = null;
+        if (rDialog != null) {
+            sDialog = rDialog.get();
+        }
+
         if (sDialog != null && sDialog.isShowing()) {
             if (TextUtils.equals(sDialog.mText, message)) return;
             // Fix: java.lang.IllegalArgumentException: View=DecorView not attached to window manager
@@ -66,29 +70,50 @@ public class CustomProgressDialog extends Dialog implements DialogInterface.OnCa
             }
         }
 
-        if (!(context instanceof Activity)) {
+        if (!(context instanceof Activity) || ((Activity) context).isFinishing())
             return;
-        }
 
         sDialog = new CustomProgressDialog(context, message);
         sDialog.setCancelable(cancelable);
+        sDialog.setOnDismissListener(new OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                clearReference();
+            }
+        });
 
-        if (sDialog != null && !sDialog.isShowing() && !((Activity) context).isFinishing()) {
+        if (sDialog != null && !sDialog.isShowing()) {
             try {
                 sDialog.show();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        rDialog = new SoftReference<>(sDialog);
+    }
+
+    private static void clearReference() {
+        if (rDialog != null) {
+            rDialog.clear();
+            rDialog = null;
+        }
     }
 
     public static void setProgress(int progress) {
+        CustomProgressDialog sDialog = null;
+        if (rDialog != null) {
+            sDialog = rDialog.get();
+        }
         if (sDialog != null && sDialog.isShowing()) {
             sDialog.setLoadingProgress(progress);
         }
     }
 
     public static void close() {
+        CustomProgressDialog sDialog = null;
+        if (rDialog != null) {
+            sDialog = rDialog.get();
+        }
         if (sDialog != null && sDialog.isShowing()) {
             // Fix: java.lang.IllegalArgumentException: View=DecorView not attached to window manager
             try {
@@ -97,7 +122,7 @@ public class CustomProgressDialog extends Dialog implements DialogInterface.OnCa
                 e.printStackTrace();
             }
         }
-        sDialog = null;
+        clearReference();
     }
 
     @Deprecated
@@ -139,10 +164,11 @@ public class CustomProgressDialog extends Dialog implements DialogInterface.OnCa
     }
 
     @Override
-    public void onCancel(DialogInterface dialog) {
-//        Context context = mContextRef.get();
-//        if (context != null) {
-//            Toast.makeText(context, "cancel", Toast.LENGTH_SHORT).show();
-//        }
+    public void dismiss() {
+        super.dismiss();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            pbLoading.setIndeterminateTintMode(PorterDuff.Mode.CLEAR);
+            pbLoading.setVisibility(View.GONE);
+        }
     }
 }
