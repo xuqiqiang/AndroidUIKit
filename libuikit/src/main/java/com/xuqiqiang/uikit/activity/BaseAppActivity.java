@@ -95,7 +95,7 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof InflateException) throw e;
+            if (e instanceof InflateException || e instanceof IllegalStateException) throw e;
             e.printStackTrace();
         }
         if (hideSoftInput()) {

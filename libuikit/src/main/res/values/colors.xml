@@ -6,6 +6,7 @@
     <color name="colorControlHighlight">#999</color>
     <color name="colorDivider">#E7EAEC</color>
     <color name="colorDisabled">#888</color>
+    <color name="textColorDialogHighlight">@color/dark</color>
     <color name="colorToast">#B3000000</color>
     <color name="colorToastText">@android:color/white</color>
     <color name="white">@android:color/white</color>

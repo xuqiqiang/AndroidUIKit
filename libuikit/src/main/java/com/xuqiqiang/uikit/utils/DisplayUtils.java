@@ -1,13 +1,12 @@
 package com.xuqiqiang.uikit.utils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
 import androidx.core.content.res.ResourcesCompat;
-
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.util.TypedValue;
 
 /**
  * Created by xuqiqiang on 2016/05/17.
@@ -91,8 +90,8 @@ public class DisplayUtils {
 
     public static Drawable getDrawable(Context context, @DrawableRes int id) {
         Drawable img = ResourcesCompat.getDrawable(context.getResources(), id, null);
-        img.setBounds(0, 0, img.getMinimumWidth(),
-                img.getMinimumHeight());
+        if (img != null)
+            img.setBounds(0, 0, img.getMinimumWidth(), img.getMinimumHeight());
         return img;
     }
 }
