@@ -56,10 +56,11 @@ public class TouchRipple extends FrameLayout {
     private static final boolean DEFAULT_SEARCH_ADAPTER  = false;
     private static final boolean DEFAULT_RIPPLE_OVERLAY  = true;
     private static final int     DEFAULT_ROUNDED_CORNERS = 0;
-    private static final boolean isCheckTapInScrollingContainer = false;
 
     private static final int  FADE_EXTRA_DELAY = 50;
     private static final long HOVER_DURATION   = 400;
+
+    private static boolean isCheckTapInScrollingContainer = true;
 
     private final Paint paint  = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect  bounds = new Rect();
@@ -106,6 +107,10 @@ public class TouchRipple extends FrameLayout {
     private GestureDetector   gestureDetector;
     private PerformClickEvent pendingClickEvent;
     private PressedEvent      pendingPressEvent;
+
+    public static void setCheckTapInScrollingContainer(boolean enabled) {
+        isCheckTapInScrollingContainer = enabled;
+    }
 
     public static RippleBuilder on(View view) {
         return new RippleBuilder(view);

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -25,10 +26,10 @@ import java.util.List;
 /**
  * Created by xuqiqiang on 2019/07/12.
  */
-public abstract class BaseFragment extends Fragment {
+public class BaseFragment extends Fragment {
     private final List<Runnable> mRunnablesAfterResume = new ArrayList<>();
     protected Context mContext;
-    protected View rootView;
+    protected View mRootView;
     protected boolean isPaused;
     private boolean refreshWhenResume;
     private boolean isRunning;
@@ -52,14 +53,20 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public View initView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (null != rootView) {
-            ViewGroup parent = (ViewGroup) rootView.getParent();
+        if (null != mRootView) {
+            ViewGroup parent = (ViewGroup) mRootView.getParent();
             if (null != parent) {
-                parent.removeView(rootView);
+                parent.removeView(mRootView);
             }
         } else {
-            View view = inflater.inflate(initView(), container, false);
-            rootView = view;
+            View view;
+            int layoutResId = initView();
+            if (layoutResId != 0) {
+                view = inflater.inflate(initView(), container, false);
+            } else {
+                view = initViewInstance();
+            }
+            mRootView = view;
             onInitView(view);
             isRunning = true;
             int lazy = lazy();
@@ -68,15 +75,15 @@ public abstract class BaseFragment extends Fragment {
                     @Override
                     public void run() {
                         if (isRunning)
-                            initData(rootView);
+                            initData(mRootView);
                     }
                 }, lazy);
             } else {
-                initData(rootView);
+                initData(mRootView);
             }
 
         }
-        return rootView;
+        return mRootView;
     }
 
     protected void onInitView(View view) {
@@ -87,7 +94,7 @@ public abstract class BaseFragment extends Fragment {
         super.onResume();
         isPaused = false;
         if (refreshWhenResume) {
-            initData(rootView);
+            initData(mRootView);
         }
         refreshWhenResume = refreshWhenResume();
 
@@ -137,13 +144,22 @@ public abstract class BaseFragment extends Fragment {
         return false;
     }
 
-    protected abstract int initView();
+    protected int initView() {
+        return 0;
+    }
 
-    protected abstract void initData(View view);
+    protected void initData(View view) {
+    }
+
+    protected View initViewInstance() {
+        return null;
+    }
 
     protected void setFragment(int id, Fragment fragment) {
         try {
-            FragmentManager supportFragmentManager = getActivity().getSupportFragmentManager();
+            FragmentActivity activity = getActivity();
+            if (activity == null) return;
+            FragmentManager supportFragmentManager = activity.getSupportFragmentManager();
             FragmentTransaction mFragmentTransaction = supportFragmentManager.beginTransaction();
             mFragmentTransaction.add(id, fragment).commit();
         } catch (Exception e) {

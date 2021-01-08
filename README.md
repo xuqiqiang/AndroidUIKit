@@ -71,7 +71,6 @@ AndroidUIKit
     │  │              │  │  UriUtils.java
     │  │              │  │  Utils.java
     │  │              │  │  ViewUtils.java
-    │  │              │  │  ZipUtils.java
     │  │              │  │
     │  │              │  ├─code // 编码
     │  │              │  │      Base32.java
@@ -150,7 +149,7 @@ allprojects {
 }
 
 dependencies {
-	implementation 'com.github.xuqiqiang:AndroidUIKit:1.0.1'
+	implementation 'com.github.xuqiqiang:AndroidUIKit:1.0.2'
 }
 ```
 

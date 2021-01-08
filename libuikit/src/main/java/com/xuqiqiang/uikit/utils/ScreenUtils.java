@@ -51,14 +51,14 @@ public class ScreenUtils {
         ScreenUtils.windowHeight = dm.heightPixels;
 
         if (BuildConfig.DEBUG) {
-            Log.i(TAG, "width:" + width);
-            Log.i(TAG, "height:" + height);
-            Log.i(TAG, "windowWidth:" + windowWidth);
-            Log.i(TAG, "viewportHeight:" + windowHeight);
-            Log.i(TAG, "statusBarHeight:" + StatusBarUtils.getStatusBarHeight(activity));
-            Log.i(TAG, "navigationBarHeight:" + getNavigationBarHeight(activity));
-            Log.i(TAG, "isAllScreenDevice:" + isAllScreenDevice(activity));
-            Log.i(TAG, "navigationGestureEnabled:" + navigationGestureEnabled(activity));
+            Logger.d(TAG, "width:" + width);
+            Logger.d(TAG, "height:" + height);
+            Logger.d(TAG, "windowWidth:" + windowWidth);
+            Logger.d(TAG, "viewportHeight:" + windowHeight);
+            Logger.d(TAG, "statusBarHeight:" + StatusBarUtils.getStatusBarHeight(activity));
+            Logger.d(TAG, "navigationBarHeight:" + getNavigationBarHeight(activity));
+            Logger.d(TAG, "isAllScreenDevice:" + isAllScreenDevice(activity));
+            Logger.d(TAG, "navigationGestureEnabled:" + navigationGestureEnabled(activity));
         }
         return true;
     }

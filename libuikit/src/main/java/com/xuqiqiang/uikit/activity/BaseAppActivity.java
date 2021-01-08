@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.InflateException;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,6 +26,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.xuqiqiang.uikit.R;
 import com.xuqiqiang.uikit.utils.ApplicationUtils;
 import com.xuqiqiang.uikit.utils.ArrayUtils;
+import com.xuqiqiang.uikit.utils.Logger;
 import com.xuqiqiang.uikit.view.CustomProgressDialog;
 import com.xuqiqiang.uikit.view.ToastMaster;
 import com.xuqiqiang.uikit.view.menu.PopupMenu;
@@ -39,7 +39,7 @@ import static com.xuqiqiang.uikit.utils.Utils.mMainHandler;
 /**
  * Created by xuqiqiang on 2019/08/19.
  */
-public abstract class BaseAppActivity extends BaseThemeActivity {
+public class BaseAppActivity extends BaseThemeActivity {
     public static final int RESULT_UNKNOWN_ERROR = -99;
     private static final String TAG = "BaseAppActivity";
     protected static boolean isAppRunning;
@@ -49,12 +49,10 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
     protected PopupMenu mPopupMenu;
     protected TextView mTitleText;
     private boolean isMainActivity;
-    private @LayoutRes
-    int mLayoutResID;
+    @LayoutRes
+    private int mLayoutResID;
     private boolean isRunning;
     private boolean isPaused;
-    private int mColorTitle;
-    private int mStatusBarDarkTheme;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -82,10 +80,13 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
                 int contentViewId = initContentView(savedInstanceState);
                 if (contentViewId != 0) setView(contentViewId);
                 else {
-                    View view = initContentInflateView(savedInstanceState);
+                    View view = initContentViewInstance(savedInstanceState);
                     if (view != null) setView(view);
                 }
                 onInitView(savedInstanceState);
+            } else {
+                View view = initViewInstance(savedInstanceState);
+                if (view != null) setContentView(view);
             }
             if (useTitleBar()) {
                 if (checkTitleBar()) {
@@ -103,7 +104,7 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
         }
         isRunning = true;
         int lazy = checkLazy();
-        Log.d(TAG, "lazy" + lazy);
+        Logger.d(TAG, "lazy" + lazy);
         if (lazy > 0) {
             mMainHandler.postDelayed(new Runnable() {
                 @Override
@@ -126,17 +127,20 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
         return false;
     }
 
-    //    @Override
-    public @LayoutRes
-    int initView(@Nullable Bundle savedInstanceState) {
+    @LayoutRes
+    public int initView(@Nullable Bundle savedInstanceState) {
         return R.layout.activity_base;
     }
 
-    protected int initContentView(@Nullable Bundle savedInstanceState) {
+    public View initViewInstance(@Nullable Bundle savedInstanceState) {
+        return null;
+    }
+
+    public int initContentView(@Nullable Bundle savedInstanceState) {
         return 0;
     }
 
-    protected View initContentInflateView(@Nullable Bundle savedInstanceState) {
+    public View initContentViewInstance(@Nullable Bundle savedInstanceState) {
         return null;
     }
 
@@ -226,7 +230,6 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
         initTitle();
 
         mBtnTitleBack = findViewById(R.id.btn_title_back);
-//        btn_title_back.setOnClickListener(arg -> onTitleBack());
         if (mBtnTitleBack != null) {
             mBtnTitleBack.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -234,29 +237,10 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
                     onTitleBack();
                 }
             });
-//            ImageView ivTitleBack = findViewById(R.id.iv_title_back);
-//            if (ivTitleBack != null) {
-//                int icBack = attrResId(this, R.attr.icBack);
-//                Log.d(TAG, "icBack.data:" + icBack);
-//                if (icBack != 0) {
-//                    ivTitleBack.setImageResource(icBack);
-//                } else {
-//                    ivTitleBack.setImageResource(R.mipmap.ic_back);
-//                }
-//            }
         }
 
         mPopupMenu = initPopupMenu();
         if (mPopupMenu != null) {
-//            if (!useMenuText()) {
-//                int icMenu = attrResId(this, R.attr.icMenu);
-//                ImageView ivTitleMenu = findViewById(R.id.iv_title_menu);
-//                if (icMenu != 0) {
-//                    ivTitleMenu.setImageResource(icMenu);
-//                } else {
-//                    ivTitleMenu.setImageResource(R.mipmap.ic_more);
-//                }
-//            }
             mBtnTitleMore = findViewById(useMenuText() ? R.id.btn_title_menu_text : R.id.btn_title_menu);
             mBtnTitleMore.setVisibility(View.VISIBLE);
             mBtnTitleMore.setOnClickListener(new View.OnClickListener() {
@@ -350,7 +334,7 @@ public abstract class BaseAppActivity extends BaseThemeActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "requestCode : " + requestCode + ", resultCode : " + resultCode);
+        Logger.d(TAG, "requestCode", requestCode, "resultCode", resultCode);
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_UNKNOWN_ERROR) {
             showMessage(R.string.unknown_error);

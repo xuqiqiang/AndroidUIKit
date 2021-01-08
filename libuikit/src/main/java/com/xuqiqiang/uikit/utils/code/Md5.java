@@ -2,7 +2,6 @@ package com.xuqiqiang.uikit.utils.code;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -27,8 +26,6 @@ public class Md5 {
             in = new FileInputStream(file);
             FileChannel ch = in.getChannel();
             return MD5(ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length()));
-        } catch (FileNotFoundException e) {
-            return "";
         } catch (IOException e) {
             return "";
         } finally {
@@ -40,7 +37,6 @@ public class Md5 {
                 }
             }
         }
-
     }
 
     /**

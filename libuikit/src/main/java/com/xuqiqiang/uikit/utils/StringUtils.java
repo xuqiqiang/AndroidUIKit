@@ -93,6 +93,12 @@ public class StringUtils {
     }
 
     //region File
+    public static String getFileName(String url) {
+        if (TextUtils.isEmpty(url)) return "";
+        int lastSep = url.lastIndexOf(File.separator);
+        return lastSep < 0 ? url : url.substring(lastSep + 1);
+    }
+
     public static String getShortName(String url) {
         if (TextUtils.isEmpty(url)) return url;
         int sIndex = url.lastIndexOf(File.separator);
@@ -108,11 +114,17 @@ public class StringUtils {
     }
 
     public static String getSuffix(String url) {
-        if (TextUtils.isEmpty(url)) return url;
-        int dotIndex = url.lastIndexOf(".");
-        if (dotIndex < 0)
-            return url;
-        return url.substring(dotIndex);
+        String extension = getFileExtension(url);
+        if (TextUtils.isEmpty(extension)) return "";
+        return "." + extension;
+    }
+
+    public static String getFileExtension(String url) {
+        if (TextUtils.isEmpty(url)) return "";
+        int lastPoi = url.lastIndexOf('.');
+        int lastSep = url.lastIndexOf(File.separator);
+        if (lastPoi < 0 || lastSep >= lastPoi) return "";
+        return url.substring(lastPoi + 1);
     }
     //endregion
 

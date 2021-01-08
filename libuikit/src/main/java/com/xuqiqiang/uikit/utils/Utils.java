@@ -9,15 +9,15 @@ import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
-import androidx.core.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.core.content.FileProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,8 +32,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public final class Utils {
 
@@ -41,12 +39,9 @@ public final class Utils {
             "com.xuqiqiang.uikit.utils.PermissionUtils$PermissionActivity";
 
     private static final ActivityLifecycleImpl ACTIVITY_LIFECYCLE = new ActivityLifecycleImpl();
-    private static final ExecutorService       UTIL_POOL          = Executors.newFixedThreadPool(3);
-    private static final Handler               UTIL_HANDLER       = new Handler(Looper.getMainLooper());
-
+    public static SingleTaskHandler mMainHandler = new SingleTaskHandler(Looper.getMainLooper());
     @SuppressLint("StaticFieldLeak")
     private static Application sApplication;
-    public static SingleTaskHandler mMainHandler;
 
     private Utils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -60,7 +55,7 @@ public final class Utils {
      */
     public static void init(final Context context) {
         Log.d("Utils", "snailstudio2010 init");
-        mMainHandler = new SingleTaskHandler(Looper.getMainLooper());
+//        mMainHandler = new SingleTaskHandler(Looper.getMainLooper());
         if (context == null) {
             init(getApplicationByReflect());
             return;
@@ -140,25 +135,16 @@ public final class Utils {
         return false;
     }
 
-    static <T> Task<T> doAsync(final Task<T> task) {
-        UTIL_POOL.execute(task);
-        return task;
-    }
-
-    public static void executeAsync(final Runnable runnable) {
-        UTIL_POOL.execute(runnable);
-    }
-
     public static void runOnUiThread(final Runnable runnable) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             runnable.run();
         } else {
-            Utils.UTIL_HANDLER.post(runnable);
+            mMainHandler.post(runnable);
         }
     }
 
     public static void runOnUiThreadDelayed(final Runnable runnable, long delayMillis) {
-        Utils.UTIL_HANDLER.postDelayed(runnable, delayMillis);
+        mMainHandler.postDelayed(runnable, delayMillis);
     }
 
     static String getCurrentProcessName() {
@@ -196,10 +182,7 @@ public final class Utils {
         return SPUtils.getInstance("Utils");
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // private method
-    ///////////////////////////////////////////////////////////////////////////
-
+    // region private method
     private static String getCurrentProcessNameByFile() {
         try {
             File file = new File("/proc/" + android.os.Process.myPid() + "/" + "cmdline");
@@ -293,16 +276,28 @@ public final class Utils {
             e.printStackTrace();
         }
     }
+    // endregion
+
+    // region interface
+    public interface OnAppStatusChangedListener {
+        void onForeground();
+
+        void onBackground();
+    }
+
+    public interface OnActivityDestroyedListener {
+        void onActivityDestroyed(Activity activity);
+    }
 
     static class ActivityLifecycleImpl implements ActivityLifecycleCallbacks {
 
-        final LinkedList<Activity>                            mActivityList         = new LinkedList<>();
-        final Map<Object, OnAppStatusChangedListener>         mStatusListenerMap    = new HashMap<>();
+        final LinkedList<Activity> mActivityList = new LinkedList<>();
+        final Map<Object, OnAppStatusChangedListener> mStatusListenerMap = new HashMap<>();
         final Map<Activity, Set<OnActivityDestroyedListener>> mDestroyedListenerMap = new HashMap<>();
 
-        private int     mForegroundCount = 0;
-        private int     mConfigCount     = 0;
-        private boolean mIsBackground    = false;
+        private int mForegroundCount = 0;
+        private int mConfigCount = 0;
+        private boolean mIsBackground = false;
 
         @Override
         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -381,6 +376,18 @@ public final class Utils {
             return topActivityByReflect;
         }
 
+        private void setTopActivity(final Activity activity) {
+            if (PERMISSION_ACTIVITY_CLASS_NAME.equals(activity.getClass().getName())) return;
+            if (mActivityList.contains(activity)) {
+                if (!mActivityList.getLast().equals(activity)) {
+                    mActivityList.remove(activity);
+                    mActivityList.addLast(activity);
+                }
+            } else {
+                mActivityList.addLast(activity);
+            }
+        }
+
         void addOnAppStatusChangedListener(final Object object,
                                            final OnAppStatusChangedListener listener) {
             mStatusListenerMap.put(object, listener);
@@ -444,18 +451,6 @@ public final class Utils {
             }
         }
 
-        private void setTopActivity(final Activity activity) {
-            if (PERMISSION_ACTIVITY_CLASS_NAME.equals(activity.getClass().getName())) return;
-            if (mActivityList.contains(activity)) {
-                if (!mActivityList.getLast().equals(activity)) {
-                    mActivityList.remove(activity);
-                    mActivityList.addLast(activity);
-                }
-            } else {
-                mActivityList.addLast(activity);
-            }
-        }
-
         private void consumeOnActivityDestroyedListener(Activity activity) {
             Iterator<Map.Entry<Activity, Set<OnActivityDestroyedListener>>> iterator
                     = mDestroyedListenerMap.entrySet().iterator();
@@ -513,71 +508,5 @@ public final class Utils {
             return true;
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // interface
-    ///////////////////////////////////////////////////////////////////////////
-
-    public abstract static class Task<Result> implements Runnable {
-
-        private static final int NEW         = 0;
-        private static final int COMPLETING  = 1;
-        private static final int CANCELLED   = 2;
-        private static final int EXCEPTIONAL = 3;
-
-        private volatile int state = NEW;
-
-        abstract Result doInBackground();
-
-        private Callback<Result> mCallback;
-
-        public Task(final Callback<Result> callback) {
-            mCallback = callback;
-        }
-
-        @Override
-        public void run() {
-            try {
-                final Result t = doInBackground();
-
-                if (state != NEW) return;
-                state = COMPLETING;
-                UTIL_HANDLER.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onCall(t);
-                    }
-                });
-            } catch (Throwable th) {
-                if (state != NEW) return;
-                state = EXCEPTIONAL;
-            }
-        }
-
-        public void cancel() {
-            state = CANCELLED;
-        }
-
-        public boolean isDone() {
-            return state != NEW;
-        }
-
-        public boolean isCanceled() {
-            return state == CANCELLED;
-        }
-    }
-
-    public interface Callback<T> {
-        void onCall(T data);
-    }
-
-    public interface OnAppStatusChangedListener {
-        void onForeground();
-
-        void onBackground();
-    }
-
-    public interface OnActivityDestroyedListener {
-        void onActivityDestroyed(Activity activity);
-    }
+    // endregion
 }

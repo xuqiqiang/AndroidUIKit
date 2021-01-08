@@ -3,7 +3,6 @@ package com.xuqiqiang.uikit.utils;
 import android.content.Intent;
 import android.net.Uri;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -14,20 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public final class FileUtils {
-
-    private static final String LINE_SEP = System.getProperty("line.separator");
-    private static final char[] HEX_DIGITS =
-            {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     private FileUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -716,240 +706,6 @@ public final class FileUtils {
     }
 
     /**
-     * Return the files in directory.
-     * <p>Doesn't traverse subdirectories</p>
-     *
-     * @param dirPath The path of directory.
-     * @return the files in directory
-     */
-    public static List<File> listFilesInDir(final String dirPath) {
-        return listFilesInDir(dirPath, false);
-    }
-
-    /**
-     * Return the files in directory.
-     * <p>Doesn't traverse subdirectories</p>
-     *
-     * @param dir The directory.
-     * @return the files in directory
-     */
-    public static List<File> listFilesInDir(final File dir) {
-        return listFilesInDir(dir, false);
-    }
-
-    /**
-     * Return the files in directory.
-     *
-     * @param dirPath     The path of directory.
-     * @param isRecursive True to traverse subdirectories, false otherwise.
-     * @return the files in directory
-     */
-    public static List<File> listFilesInDir(final String dirPath, final boolean isRecursive) {
-        return listFilesInDir(getFileByPath(dirPath), isRecursive);
-    }
-
-    /**
-     * Return the files in directory.
-     *
-     * @param dir         The directory.
-     * @param isRecursive True to traverse subdirectories, false otherwise.
-     * @return the files in directory
-     */
-    public static List<File> listFilesInDir(final File dir, final boolean isRecursive) {
-        return listFilesInDirWithFilter(dir, new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return true;
-            }
-        }, isRecursive);
-    }
-
-    /**
-     * Return the files that satisfy the filter in directory.
-     * <p>Doesn't traverse subdirectories</p>
-     *
-     * @param dirPath The path of directory.
-     * @param filter  The filter.
-     * @return the files that satisfy the filter in directory
-     */
-    public static List<File> listFilesInDirWithFilter(final String dirPath,
-                                                      final FileFilter filter) {
-        return listFilesInDirWithFilter(getFileByPath(dirPath), filter, false);
-    }
-
-    /**
-     * Return the files that satisfy the filter in directory.
-     * <p>Doesn't traverse subdirectories</p>
-     *
-     * @param dir    The directory.
-     * @param filter The filter.
-     * @return the files that satisfy the filter in directory
-     */
-    public static List<File> listFilesInDirWithFilter(final File dir,
-                                                      final FileFilter filter) {
-        return listFilesInDirWithFilter(dir, filter, false);
-    }
-
-    /**
-     * Return the files that satisfy the filter in directory.
-     *
-     * @param dirPath     The path of directory.
-     * @param filter      The filter.
-     * @param isRecursive True to traverse subdirectories, false otherwise.
-     * @return the files that satisfy the filter in directory
-     */
-    public static List<File> listFilesInDirWithFilter(final String dirPath,
-                                                      final FileFilter filter,
-                                                      final boolean isRecursive) {
-        return listFilesInDirWithFilter(getFileByPath(dirPath), filter, isRecursive);
-    }
-
-    /**
-     * Return the files that satisfy the filter in directory.
-     *
-     * @param dir         The directory.
-     * @param filter      The filter.
-     * @param isRecursive True to traverse subdirectories, false otherwise.
-     * @return the files that satisfy the filter in directory
-     */
-    public static List<File> listFilesInDirWithFilter(final File dir,
-                                                      final FileFilter filter,
-                                                      final boolean isRecursive) {
-        if (!isDir(dir)) return null;
-        List<File> list = new ArrayList<>();
-        File[] files = dir.listFiles();
-        if (files != null && files.length != 0) {
-            for (File file : files) {
-                if (filter.accept(file)) {
-                    list.add(file);
-                }
-                if (isRecursive && file.isDirectory()) {
-                    //noinspection ConstantConditions
-                    list.addAll(listFilesInDirWithFilter(file, filter, true));
-                }
-            }
-        }
-        return list;
-    }
-
-    /**
-     * Return the time that the file was last modified.
-     *
-     * @param filePath The path of file.
-     * @return the time that the file was last modified
-     */
-
-    public static long getFileLastModified(final String filePath) {
-        return getFileLastModified(getFileByPath(filePath));
-    }
-
-    /**
-     * Return the time that the file was last modified.
-     *
-     * @param file The file.
-     * @return the time that the file was last modified
-     */
-    public static long getFileLastModified(final File file) {
-        if (file == null) return -1;
-        return file.lastModified();
-    }
-
-    /**
-     * Return the charset of file simply.
-     *
-     * @param filePath The path of file.
-     * @return the charset of file simply
-     */
-    public static String getFileCharsetSimple(final String filePath) {
-        return getFileCharsetSimple(getFileByPath(filePath));
-    }
-
-    /**
-     * Return the charset of file simply.
-     *
-     * @param file The file.
-     * @return the charset of file simply
-     */
-    public static String getFileCharsetSimple(final File file) {
-        int p = 0;
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(new FileInputStream(file));
-            p = (is.read() << 8) + is.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        switch (p) {
-            case 0xefbb:
-                return "UTF-8";
-            case 0xfffe:
-                return "Unicode";
-            case 0xfeff:
-                return "UTF-16BE";
-            default:
-                return "GBK";
-        }
-    }
-
-    /**
-     * Return the number of lines of file.
-     *
-     * @param filePath The path of file.
-     * @return the number of lines of file
-     */
-    public static int getFileLines(final String filePath) {
-        return getFileLines(getFileByPath(filePath));
-    }
-
-    /**
-     * Return the number of lines of file.
-     *
-     * @param file The file.
-     * @return the number of lines of file
-     */
-    public static int getFileLines(final File file) {
-        int count = 1;
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(new FileInputStream(file));
-            byte[] buffer = new byte[1024];
-            int readChars;
-            if (LINE_SEP.endsWith("\n")) {
-                while ((readChars = is.read(buffer, 0, 1024)) != -1) {
-                    for (int i = 0; i < readChars; ++i) {
-                        if (buffer[i] == '\n') ++count;
-                    }
-                }
-            } else {
-                while ((readChars = is.read(buffer, 0, 1024)) != -1) {
-                    for (int i = 0; i < readChars; ++i) {
-                        if (buffer[i] == '\r') ++count;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return count;
-    }
-
-    /**
      * Return the size of directory.
      *
      * @param dirPath The path of directory.
@@ -1060,70 +816,6 @@ public final class FileUtils {
     }
 
     /**
-     * Return the MD5 of file.
-     *
-     * @param filePath The path of file.
-     * @return the md5 of file
-     */
-    public static String getFileMD5ToString(final String filePath) {
-        File file = isSpace(filePath) ? null : new File(filePath);
-        return getFileMD5ToString(file);
-    }
-
-    /**
-     * Return the MD5 of file.
-     *
-     * @param file The file.
-     * @return the md5 of file
-     */
-    public static String getFileMD5ToString(final File file) {
-        return bytes2HexString(getFileMD5(file));
-    }
-
-    /**
-     * Return the MD5 of file.
-     *
-     * @param filePath The path of file.
-     * @return the md5 of file
-     */
-    public static byte[] getFileMD5(final String filePath) {
-        return getFileMD5(getFileByPath(filePath));
-    }
-
-    /**
-     * Return the MD5 of file.
-     *
-     * @param file The file.
-     * @return the md5 of file
-     */
-    public static byte[] getFileMD5(final File file) {
-        if (file == null) return null;
-        DigestInputStream dis = null;
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            dis = new DigestInputStream(fis, md);
-            byte[] buffer = new byte[1024 * 256];
-            while (true) {
-                if (!(dis.read(buffer) > 0)) break;
-            }
-            md = dis.getMessageDigest();
-            return md.digest();
-        } catch (NoSuchAlgorithmException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (dis != null) {
-                    dis.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Return the file's path of directory.
      *
      * @param file The file.
@@ -1200,31 +892,6 @@ public final class FileUtils {
     }
 
     /**
-     * Return the extension of file.
-     *
-     * @param file The file.
-     * @return the extension of file
-     */
-    public static String getFileExtension(final File file) {
-        if (file == null) return "";
-        return getFileExtension(file.getPath());
-    }
-
-    /**
-     * Return the extension of file.
-     *
-     * @param filePath The path of file.
-     * @return the extension of file
-     */
-    public static String getFileExtension(final String filePath) {
-        if (isSpace(filePath)) return "";
-        int lastPoi = filePath.lastIndexOf('.');
-        int lastSep = filePath.lastIndexOf(File.separator);
-        if (lastPoi == -1 || lastSep >= lastPoi) return "";
-        return filePath.substring(lastPoi + 1);
-    }
-
-    /**
      * Notify system to scan the file.
      *
      * @param file The file.
@@ -1237,10 +904,6 @@ public final class FileUtils {
         Utils.getApp().sendBroadcast(intent);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // interface
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Notify system to scan the file.
      *
@@ -1250,21 +913,7 @@ public final class FileUtils {
         notifySystemToScan(getFileByPath(filePath));
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // other utils methods
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static String bytes2HexString(final byte[] bytes) {
-        if (bytes == null) return "";
-        int len = bytes.length;
-        if (len <= 0) return "";
-        char[] ret = new char[len << 1];
-        for (int i = 0, j = 0; i < len; i++) {
-            ret[j++] = HEX_DIGITS[bytes[i] >> 4 & 0x0f];
-            ret[j++] = HEX_DIGITS[bytes[i] & 0x0f];
-        }
-        return new String(ret);
-    }
+    // region other utils methods
 
     private static String byte2FitMemorySize(final long byteNum) {
         if (byteNum < 0) {
@@ -1319,6 +968,7 @@ public final class FileUtils {
             }
         }
     }
+    // endregion
 
     public interface OnReplaceListener {
         boolean onReplace();

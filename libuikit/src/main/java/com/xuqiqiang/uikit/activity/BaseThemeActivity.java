@@ -27,7 +27,6 @@ public class BaseThemeActivity extends BaseAppCompatActivity {
         boolean statusBarImmersion = useStatusBarImmersion();
         StatusBarUtils.setRootViewFitsSystemWindows(this, !statusBarImmersion);
         if (mColorTitle == 0) mColorTitle = colorTitle();
-//        int colorTitle = colorTitle();
         Logger.d(TAG, "initStatusBar colorTitle:" + StringUtils.numToHex16(mColorTitle));
         if (statusBarImmersion) {
             StatusBarUtils.setTranslucentStatus(this);
