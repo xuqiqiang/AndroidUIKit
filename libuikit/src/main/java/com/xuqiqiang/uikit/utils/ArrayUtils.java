@@ -63,12 +63,30 @@ public class ArrayUtils {
         return map == null ? 0 : map.size();
     }
 
+    public static <E> List<E> slice(List<E> list, int start, int end) {
+        if (start < 0) start = 0;
+        if (end > list.size()) end = list.size();
+        if (start == 0 && end == list.size()) return list;
+        return list.subList(start, end);
+    }
+
     public static String join(CharSequence delimiter, String[] elements) {
         StringBuilder contact = new StringBuilder();
         if (elements != null) {
             for (int i = 0; i < elements.length; i++) {
                 contact.append(elements[i]);
                 if (i < elements.length - 1) contact.append(delimiter);
+            }
+        }
+        return contact.toString();
+    }
+
+    public static <E> String join(CharSequence delimiter, List<E> elements, Converter2<E, String> converter) {
+        StringBuilder contact = new StringBuilder();
+        if (elements != null) {
+            for (int i = 0; i < elements.size(); i++) {
+                contact.append(converter.convert(elements.get(i)));
+                if (i < elements.size() - 1) contact.append(delimiter);
             }
         }
         return contact.toString();
@@ -174,6 +192,10 @@ public class ArrayUtils {
 
     public interface Converter<E> {
         Object convert(E e);
+    }
+
+    public interface Converter2<E, T> {
+        T convert(E e);
     }
 
     public interface Creator<T> {

@@ -149,7 +149,7 @@ allprojects {
 }
 
 dependencies {
-	implementation 'com.github.xuqiqiang:AndroidUIKit:1.0.2'
+	implementation 'com.github.xuqiqiang:AndroidUIKit:1.0.3'
 }
 ```
 
