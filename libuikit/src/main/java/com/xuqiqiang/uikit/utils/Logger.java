@@ -25,10 +25,10 @@ public class Logger {
     }
 
     public static void d(Object... msg) {
-        if (!enabled) return;
+        if (!enabled || ArrayUtils.isEmpty(msg)) return;
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < msg.length; i += 1) {
-            str.append(msg[i].toString());
+            str.append(msg[i] == null ? "null" : msg[i].toString());
             if (i < msg.length - 1)
                 str.append(", ");
         }
