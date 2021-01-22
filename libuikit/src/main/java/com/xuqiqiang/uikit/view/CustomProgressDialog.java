@@ -16,12 +16,15 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.LayoutRes;
+
 import com.xuqiqiang.uikit.R;
 
 import java.lang.ref.SoftReference;
 
 public class CustomProgressDialog extends Dialog {
 
+    private static int mDefaultLayout = R.layout.dialog_custom_progress;
     private volatile static SoftReference<CustomProgressDialog> rDialog;
     // for test
     private static int progress;
@@ -33,7 +36,7 @@ public class CustomProgressDialog extends Dialog {
     private CustomProgressDialog(Context context, CharSequence message) {
         super(context, R.style.CustomProgressDialog);
         @SuppressLint("InflateParams")
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_custom_progress, null);
+        View view = LayoutInflater.from(context).inflate(mDefaultLayout, null);
         if (!TextUtils.isEmpty(message)) {
             mText = message;
             TextView tvMessage = view.findViewById(R.id.tv_message);
@@ -44,6 +47,10 @@ public class CustomProgressDialog extends Dialog {
         rpbLoading = view.findViewById(R.id.rpb_loading);
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addContentView(view, lp);
+    }
+
+    public static void setDefaultLayout(@LayoutRes int layoutId) {
+        mDefaultLayout = layoutId;
     }
 
     public static void show(Context context) {
@@ -155,6 +162,7 @@ public class CustomProgressDialog extends Dialog {
     }
 
     private void setLoadingProgress(int progress) {
+        if (rpbLoading == null) return;
         if (mIndeterminate) {
             mIndeterminate = false;
             pbLoading.setVisibility(View.GONE);

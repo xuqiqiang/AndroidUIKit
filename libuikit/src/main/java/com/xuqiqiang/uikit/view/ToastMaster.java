@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -27,8 +28,13 @@ import java.lang.reflect.Field;
 public class ToastMaster {
 
     private static WeakReference<Toast> sToast;
+    private static int mDefaultLayout = R.layout.toast;
 
     private ToastMaster() {
+    }
+
+    public static void setDefaultLayout(@LayoutRes int layoutId) {
+        mDefaultLayout = layoutId;
     }
 
     public static Toast showToast(Context context, CharSequence text) {
@@ -85,9 +91,9 @@ public class ToastMaster {
 
     private static View getView(Context context, CharSequence text) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.toast, null);
-        TextView tv_text = view.findViewById(R.id.text);
-        tv_text.setText(text);
+        View view = inflater.inflate(mDefaultLayout, null);
+        TextView tvText = view.findViewById(R.id.tv_text);
+        tvText.setText(text);
         return view;
     }
 
