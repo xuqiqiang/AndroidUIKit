@@ -3,7 +3,6 @@ package com.xuqiqiang.uikit.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -71,14 +70,16 @@ public class KeyboardManager {
             view.setFocusableInTouchMode(true);
             view.requestFocus();
         }
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mInputMethodManager != null && view != null)
-                    mInputMethodManager.showSoftInput(view,
-                            InputMethodManager.RESULT_SHOWN);
-            }
-        }, 200);
+        if (view != null) {
+            view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mInputMethodManager != null)
+                        mInputMethodManager.showSoftInput(view,
+                                InputMethodManager.RESULT_SHOWN);
+                }
+            }, 200);
+        }
     }
 
     public boolean isShowing() {
