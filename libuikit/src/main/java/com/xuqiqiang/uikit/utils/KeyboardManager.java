@@ -3,6 +3,7 @@ package com.xuqiqiang.uikit.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -105,8 +106,10 @@ public class KeyboardManager {
                         return;
                     }
 
+                    // 判断是否屏幕方向发生改变
                     if (mWindowPort != null) {
-                        if ((r.right - r.bottom) * (mWindowPort.right - mWindowPort.bottom) < 0) {
+                        if ((r.right - r.bottom) * (mWindowPort.right - mWindowPort.bottom) < 0
+                                && r.right != mWindowPort.right) {
                             mLastBottom = -1;
                             mWindowPort = null;
                         }
@@ -157,7 +160,11 @@ public class KeyboardManager {
     public void onDestroy() {
         View rootView = context.getWindow().getDecorView();
         if (mGlobalLayoutListener != null) {
-            rootView.getViewTreeObserver().removeOnGlobalLayoutListener(mGlobalLayoutListener);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(mGlobalLayoutListener);
+            } else {
+                rootView.getViewTreeObserver().removeGlobalOnLayoutListener(mGlobalLayoutListener);
+            }
             mGlobalLayoutListener = null;
         }
         hiddenKeyboard(rootView);
