@@ -135,9 +135,21 @@ public class UriUtils {
                 } else if (isDownloadsDocument(uri)) {
                     // DownloadsProvider
                     final String id = DocumentsContract.getDocumentId(uri);
-                    final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
-                            Long.valueOf(id));
-                    path = getDataColumn(context, contentUri, null, null);
+                    int index = id.indexOf(Environment.getExternalStorageDirectory().getPath());
+                    if (index >= 0) {
+                        return id.substring(index);
+                    }
+                    long lId;
+                    try {
+                        lId = Long.valueOf(id);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return UriUtils.getDataColumn(context, uri, null, null);
+                    }
+                    final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        lId);
+                    path = UriUtils.getDataColumn(context, contentUri, null, null);
                     return path;
                 } else if (isMediaDocument(uri)) {
                     // MediaProvider
