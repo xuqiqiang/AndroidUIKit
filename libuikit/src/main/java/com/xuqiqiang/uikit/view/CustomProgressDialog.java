@@ -82,10 +82,13 @@ public class CustomProgressDialog extends Dialog {
 
         sDialog = new CustomProgressDialog(context, message);
         sDialog.setCancelable(cancelable);
+        final CustomProgressDialog finalSDialog = sDialog;
         sDialog.setOnDismissListener(new OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                clearReference();
+                if (rDialog != null && rDialog.get() == finalSDialog) {
+                    clearReference();
+                }
             }
         });
 
